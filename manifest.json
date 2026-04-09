@@ -1,0 +1,22 @@
+{
+  "short_name": "MigrationSOP",
+  "name": "Power Automate Guide: CRG to Thermo Fisher",
+  "description": "Technical SOP for Power Platform tenant-to-tenant migration.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/tfs-migration/index.html.html",
+  "background_color": "#0d1117",
+  "display": "standalone",
+  "scope": "/tfs-migration/",
+  "theme_color": "#00d4ff"
+}
