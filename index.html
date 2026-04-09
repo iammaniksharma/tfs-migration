@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lift and Shift Survival Guide — CRG to TFS</title>
+<title>Power Automate Migration Guide — CRG to TFS</title>
+
+<link rel="manifest" href="/tfs-migration/manifest.json">
+<meta name="theme-color" content="#534AB7">
+<link rel="apple-touch-icon" href="/tfs-migration/icon-192.png">
+
 <style>
   :root {
     --teal: #1D9E75; --teal-bg: #E1F5EE; --teal-dark: #085041;
@@ -107,7 +112,7 @@
   .env-card .env-machine { font-size: 10px; font-weight: 600; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
   .env-card.dev   { border-top: 3px solid var(--teal); }
   .env-card.test  { border-top: 3px solid var(--blue); }
-  .env-card.uat   { border-top: 3px solid var(--amber); }
+  .env-card.uat    { border-top: 3px solid var(--amber); }
   .env-card.prod  { border-top: 3px solid var(--purple); }
   .env-card.dev   .env-machine { background: var(--teal-bg); color: var(--teal); }
   .env-card.test  .env-machine { background: var(--blue-bg); color: var(--blue); }
@@ -136,15 +141,14 @@
 <body>
 <div class="page">
 
-  <h1>Lift and Shift Survival Guide</h1>
+  <h1>Power Automate Migration Guide</h1>
   <div class="subtitle">CRG Tenant → Thermo Fisher Scientific Tenant Migration</div>
-  <div class="version-bar">Version 1.0 &nbsp;|&nbsp; Power Platform &amp; RPA &nbsp;|&nbsp; Time-Critical Program</div>
+  <div class="version-bar">Author: Manik Sharma &nbsp;|&nbsp; Version 1.0 &nbsp;|&nbsp; Power Platform &amp; RPA</div>
 
   <div class="intro-box">
     <strong>Purpose:</strong> Move flows and solutions from CRG to Thermo Fisher Scientific (TFS) without redesign. Follow each step exactly. Do not skip steps. Do not improvise.
   </div>
 
-  <!-- FLOWCHART -->
   <h2>Migration Flowchart</h2>
   <p style="font-size:13px;color:var(--subtext);margin-bottom:12px;">Top to bottom = overall flow. Left to right = steps within each phase.</p>
 
@@ -221,7 +225,6 @@
 
   <hr>
 
-  <!-- PART 1 -->
   <h2>Part 1 — Survival Checklist (8 Rules)</h2>
   <p style="font-size:13px;color:var(--subtext);">These are not suggestions. Skip any of these and your migration will fail.</p>
 
@@ -337,44 +340,8 @@
     <div class="order-step"><span class="step-num">10</span>Test and validate</div>
   </div>
 
-  <h3>Pre-Export Checklist</h3>
-  <ul class="checklist">
-    <li>Flow is inside a named solution (not Default Solution, not My Flows)</li>
-    <li>All child flows are inside the same solution</li>
-    <li>All connectors use Connection References (no direct connections)</li>
-    <li>All tenant-specific values use Environment Variables</li>
-    <li>Solution name is clearly labeled for identification</li>
-    <li>You know which TFS environment to target (Dev / Test / Prod)</li>
-    <li>You have access to the TFS environment and can create connections</li>
-  </ul>
-
-  <h3>Post-Import Validation Checklist</h3>
-  <ul class="checklist">
-    <li>Solution is visible in TFS environment</li>
-    <li>All flows are present in the solution</li>
-    <li>All Connection References are mapped and authenticated</li>
-    <li>All Environment Variables have TFS values entered</li>
-    <li>Each flow has been turned on manually</li>
-    <li>At least one successful manual run recorded in Run History</li>
-    <li>No 401 errors, no missing connection errors, no null variable errors</li>
-    <li>If RPA flow: desktop machine or machine group is assigned and online</li>
-  </ul>
-
-  <h3>Common Failure Points</h3>
-  <table>
-    <tr><th>Failure</th><th>Why It Happens</th><th>How to Avoid</th></tr>
-    <tr><td>Flow imports but fails on run</td><td>Direct connections used instead of Connection References</td><td>Replace all direct connections before export</td></tr>
-    <tr><td>Environment variable is blank</td><td>Variable not set in TFS after import</td><td>Fill in all variable values during import wizard</td></tr>
-    <tr><td>Child flow not found</td><td>Child flow not included in solution</td><td>Add all child flows before export</td></tr>
-    <tr><td>Flow is Off after import</td><td>Flows do not auto-activate</td><td>Turn on manually after every import</td></tr>
-    <tr><td>Wrong tenant / environment</td><td>Imported to wrong TFS environment</td><td>Confirm target environment before uploading ZIP</td></tr>
-    <tr><td>Machine not found (RPA)</td><td>Machine not registered in TFS</td><td>Register and verify machine before testing</td></tr>
-    <tr><td>Connection not authenticated</td><td>TFS connection created but not signed in</td><td>Open each connection reference and sign in</td></tr>
-  </table>
-
   <hr>
 
-  <!-- PART 2 -->
   <h2>Part 2 — Explicit Approval to Ignore Best Practices (For Now)</h2>
   <p style="font-size:13px;"><strong>This is a migration, not a rewrite.</strong> You have permission to migrate messy, non-standard, or poorly structured flows. Your only goal is to make them run in TFS.</p>
 
@@ -414,206 +381,34 @@
 
   <hr>
 
-  <!-- PART 3a -->
-  <h2>Part 3a — Must-Have Documentation</h2>
-
-  <h3>Managed vs Unmanaged — When to Use Which</h3>
-  <table>
-    <tr><th>Scenario</th><th>Use</th></tr>
-    <tr><td>Migrating from CRG (source)</td><td><strong>Unmanaged export</strong></td></tr>
-    <tr><td>Importing into TFS Dev</td><td><strong>Unmanaged import</strong></td></tr>
-    <tr><td>Deploying Dev → Test</td><td><strong>Managed export, Managed import</strong></td></tr>
-    <tr><td>Deploying Test → Production</td><td><strong>Managed export, Managed import</strong></td></tr>
-    <tr><td>Hotfix needed in Production</td><td>Create patch solution, export/import as Managed</td></tr>
-  </table>
-  <p style="font-size:12px;color:var(--subtext);">Key rule: Unmanaged in Dev. Managed everywhere else above Dev.</p>
-
-  <h3>Environment Variable Mapping Table</h3>
-  <p style="font-size:12px;color:var(--subtext);margin-bottom:8px;">Complete this before export. Share with the team for shared variables.</p>
-  <table>
-    <tr><th>Variable Name</th><th>CRG Value</th><th>TFS Value</th><th>Type</th><th>Shared?</th></tr>
-    <tr><td>EV_SharePoint_SiteURL</td><td>https://crg.sharepoint.com/...</td><td>https://thermofisher.sharepoint.com/...</td><td>String</td><td>No</td></tr>
-    <tr><td>EV_Tenant_Domain</td><td>crg.com</td><td>thermofisher.com</td><td>String</td><td>Yes</td></tr>
-    <tr><td><em>(add rows as needed)</em></td><td></td><td></td><td></td><td></td></tr>
-  </table>
-
-  <h3>Connection Reference Mapping Table</h3>
-  <table>
-    <tr><th>Connection Reference Name</th><th>Connector Type</th><th>CRG Owner</th><th>TFS Connection Name</th><th>TFS Owner</th></tr>
-    <tr><td>CR_SharePoint_Main</td><td>SharePoint</td><td>user@crg.com</td><td>SPO_TFS_ServiceAcct</td><td>svc_pa@thermofisher.com</td></tr>
-    <tr><td>CR_Outlook_Shared</td><td>Office 365 Outlook</td><td>user@crg.com</td><td>Outlook_TFS_ServiceAcct</td><td>svc_pa@thermofisher.com</td></tr>
-    <tr><td><em>(add rows as needed)</em></td><td></td><td></td><td></td><td></td></tr>
-  </table>
-
-  <h3>Shared Environment Variables</h3>
-  <ul>
-    <li>Do not duplicate shared variables across solutions.</li>
-    <li>Create shared variables in a <strong>base/shared solution</strong> and import it first.</li>
-    <li>Coordinate with other developers on shared variable names before export.</li>
-    <li>Use naming convention: <code>EV_Shared_[Description]</code> — example: <code>EV_Shared_SPOSiteURL</code>.</li>
-  </ul>
-
-  <h3>What to Include and Exclude in Your Solution</h3>
-  <table>
-    <tr><th>Include</th><th>Exclude</th></tr>
-    <tr><td>All cloud flows that need to run in TFS</td><td>Retired or disabled flows not needed in TFS</td></tr>
-    <tr><td>All child flows called by parent flows</td><td>Test/debug flows never used in production</td></tr>
-    <tr><td>All Connection References used by any flow</td><td>Duplicate or backup copies of flows</td></tr>
-    <tr><td>All Environment Variables referenced by any flow</td><td>Flows depending on connectors not available in TFS</td></tr>
-    <tr><td>Custom connectors (if confirmed available in TFS)</td><td></td></tr>
-  </table>
-
-  <h3>Minimum Validation Checklist</h3>
-  <table>
-    <tr><th>Check</th><th>Method</th><th>Pass Condition</th></tr>
-    <tr><td>Flow present in TFS solution</td><td>Open solution in TFS</td><td>Flow visible, no import errors</td></tr>
-    <tr><td>Flow turns on</td><td>Click Turn On</td><td>Status shows On</td></tr>
-    <tr><td>Flow runs</td><td>Manual trigger</td><td>Run History shows Succeeded</td></tr>
-    <tr><td>Connections authenticated</td><td>Check Connection References</td><td>No warning icons</td></tr>
-    <tr><td>Environment variables resolved</td><td>Check flow run input values</td><td>Correct TFS values shown</td></tr>
-    <tr><td>Child flows accessible</td><td>Review run history steps</td><td>No "child flow not found" errors</td></tr>
-    <tr><td>RPA machine online (if applicable)</td><td>Check machine in TFS portal</td><td>Status = Online</td></tr>
-  </table>
-
-  <hr>
-
-  <!-- PART 3b -->
-  <h2>Part 3b — Good-to-Have Documentation <span class="badge badge-opt">OPTIONAL — POST-MIGRATION</span></h2>
-  <div class="opt-banner">Everything in this section is optional. Complete after the migration is stable. Do not let this block go-live.</div>
-
-  <div class="section-opt">
-    <h3>Naming Conventions (Recommended)</h3>
-    <table>
-      <tr><th>Object</th><th>Convention</th><th>Example</th></tr>
-      <tr><td>Solution</td><td>[Team]_[Project]_[YYYYMM]</td><td>HR_Onboarding_202506</td></tr>
-      <tr><td>Cloud Flow</td><td>[Trigger]_[Action]_[Object]</td><td>Scheduled_Sync_EmployeeList</td></tr>
-      <tr><td>Child Flow</td><td>CF_[Description]</td><td>CF_SendApprovalEmail</td></tr>
-      <tr><td>Connection Reference</td><td>CR_[Connector]_[Purpose]</td><td>CR_SharePoint_HRSite</td></tr>
-      <tr><td>Environment Variable</td><td>EV_[Scope]_[Description]</td><td>EV_Shared_HRSiteURL</td></tr>
-      <tr><td>Desktop Flow</td><td>DF_[Application]_[Action]</td><td>DF_SAP_CreatePO</td></tr>
-    </table>
-
-    <h3>Code Review Checklist</h3>
-    <ul class="checklist">
-      <li>Flow names follow agreed naming convention</li>
-      <li>All actions have meaningful names (not "Condition 2", "Apply to each 3")</li>
-      <li>Error handling scope added around critical actions</li>
-      <li>Sensitive data not logged in run history</li>
-      <li>No redundant or duplicate steps</li>
-      <li>Parallel branches used where appropriate</li>
-      <li>Recurrence triggers have correct time zones set</li>
-    </ul>
-
-    <h3>Post-Migration Improvements (Backlog)</h3>
-    <ul>
-      <li>Replace Apply to each loops with Select and Filter Array where possible.</li>
-      <li>Use batch requests for SharePoint or Dataverse operations at high volume.</li>
-      <li>Add error handling scopes with Teams or email notifications on failure.</li>
-      <li>Add filter queries to triggers to reduce unnecessary runs.</li>
-      <li>Add concurrency controls on loops to prevent throttling.</li>
-    </ul>
-  </div>
-
-  <hr>
-
-  <!-- PART 3c -->
-  <h2>Part 3c — Testing Strategy</h2>
+  <h2>Part 3 — Testing Strategy</h2>
 
   <h3>Environments and Machine Types</h3>
   <div class="env-grid">
     <div class="env-card dev">
       <div class="env-name">Development</div>
       <div class="env-machine">HM — Hosted Machine</div>
-      <p style="font-size:11px;margin:0;">Microsoft-provided HM in Power Automate Portal. Initial testing and post-import validation.</p>
+      <p style="font-size:11px;margin:0;">Microsoft-provided HM in Power Automate Portal.</p>
     </div>
     <div class="env-card test">
       <div class="env-name">Test</div>
       <div class="env-machine">HMG — Machine Group</div>
-      <p style="font-size:11px;margin:0;">Regression and integration testing. Unattended execution.</p>
+      <p style="font-size:11px;margin:0;">Regression and integration testing.</p>
     </div>
     <div class="env-card uat">
       <div class="env-name">Validation (UAT)</div>
       <div class="env-machine">HMG — Machine Group</div>
-      <p style="font-size:11px;margin:0;">User acceptance testing. Sign-off required before Production.</p>
+      <p style="font-size:11px;margin:0;">User acceptance testing.</p>
     </div>
     <div class="env-card prod">
       <div class="env-name">Production</div>
       <div class="env-machine">HMG — Machine Group</div>
-      <p style="font-size:11px;margin:0;">Live operations. At least one machine online at all times.</p>
+      <p style="font-size:11px;margin:0;">Live operations.</p>
     </div>
   </div>
 
-  <h3>Testing in Development Using HMs</h3>
-  <ul>
-    <li>Every flow runs at least once with a successful result.</li>
-    <li>All Connection References authenticate without errors.</li>
-    <li>All Environment Variables resolve to the correct TFS values.</li>
-    <li>Child flows are reachable and execute correctly.</li>
-    <li>Desktop flows: the HM is assigned and the flow completes end-to-end.</li>
-    <li>To test on HMs: go to <code>Monitor → Desktop flow runs</code>. Trigger the flow manually. Confirm the HM picks up the run (status: Running). Check result: Succeeded or Failed.</li>
-    <li>For attended flows on HMs: the session must be active and unlocked.</li>
-  </ul>
-
-  <h3>Minimum Dev Test Cases</h3>
-  <ol>
-    <li><strong>Happy path</strong> — trigger with valid input, confirm expected output.</li>
-    <li><strong>Null/empty input</strong> — confirm flow handles gracefully (or note as a known gap).</li>
-    <li><strong>Connection test</strong> — confirm all connections authenticate on first real run.</li>
-  </ol>
-
-  <h3>Testing in Test and Production Using HMGs</h3>
-  <ul>
-    <li>Machine group must be assigned to the desktop flow in TFS.</li>
-    <li>At least one machine in the group must show <strong>Online</strong> status.</li>
-    <li>The service account used must have permissions on the target application.</li>
-    <li>The flow must complete unattended — no prompts, pop-ups, or auth dialogs during execution.</li>
-  </ul>
-
-  <h3>Minimum Test/Prod Validation Cases</h3>
-  <ol>
-    <li>Flow triggers correctly from its source (schedule, button, upstream event).</li>
-    <li>The HMG picks up the desktop run within expected wait time.</li>
-    <li>End-to-end data accuracy confirmed — input matches expected output.</li>
-    <li>Run during off-peak hours first to confirm machine availability.</li>
-  </ol>
-
-  <h3>Validating Connections and Credentials</h3>
-  <table>
-    <tr><th>Item</th><th>How to Check</th><th>Pass Condition</th></tr>
-    <tr><td>Cloud flow connections</td><td>Open each Connection Reference in TFS solution</td><td>Shows "Connected" — no warning icon</td></tr>
-    <tr><td>Service account credentials</td><td>Confirm account password not expired, MFA not blocking unattended use</td><td>Account signs in silently</td></tr>
-    <tr><td>Desktop flow credentials</td><td>Check Windows credentials used for HM/HMG in TFS</td><td>Valid credentials, not expired</td></tr>
-    <tr><td>Azure Key Vault (if used)</td><td>Confirm Key Vault reference is updated for TFS environment</td><td>Secrets resolve without error</td></tr>
-    <tr><td>External service access</td><td>Confirm all APIs, SharePoint sites, databases are accessible from TFS</td><td>No network or firewall blocks</td></tr>
-    <tr><td>IP allowlisting</td><td>Confirm TFS service IPs are allowlisted if required by target systems</td><td>No connection refused errors</td></tr>
-  </table>
-
-  <h3>Failure Handling and Rollback</h3>
-  <p style="font-size:13px;"><strong>If a flow fails after migration:</strong></p>
-  <table>
-    <tr><th>Error</th><th>Fix</th></tr>
-    <tr><td>Invalid connection / 401 Unauthorized</td><td>Re-authenticate the Connection Reference</td></tr>
-    <tr><td>Environment variable is empty or null</td><td>Set the variable value in the TFS solution</td></tr>
-    <tr><td>Child flow not found</td><td>Add child flow to solution, re-import</td></tr>
-    <tr><td>Machine unavailable (RPA)</td><td>Check machine/group status, assign correct machine</td></tr>
-    <tr><td>Permission denied on target system</td><td>Update service account permissions</td></tr>
-    <tr><td>Flow is Off</td><td>Turn on the flow manually</td></tr>
-    <tr><td>Cannot fix quickly</td><td>Turn off in TFS, notify lead, re-run from CRG as fallback</td></tr>
-  </table>
-
-  <p style="font-size:13px;"><strong>Rollback steps:</strong></p>
-  <ul>
-    <li>Keep CRG flows active until TFS is fully validated and signed off.</li>
-    <li>Do not deactivate CRG flows until sign-off is confirmed in TFS.</li>
-    <li>If TFS fails and CRG needs to resume: re-enable the CRG flow immediately. No re-import needed.</li>
-    <li>Document the rollback trigger condition and who has authority to initiate it.</li>
-  </ul>
-
-  <hr>
-
-  <!-- QUICK REF -->
   <div class="quickref">
-    <h3>Quick Reference Card — Print or Pin This</h3>
+    <h3>Quick Reference Card — Manik Sharma</h3>
     <div class="qr-cols">
       <div class="qr-col">
         <h4>Before Export (CRG)</h4>
@@ -621,26 +416,24 @@
           <li>Flow is in a named Solution</li>
           <li>All child flows included</li>
           <li>Connection References used</li>
-          <li>Env Variables set for all tenant values</li>
-          <li>Export as UNMANAGED</li>
+          <li>Env Variables set</li>
         </ul>
       </div>
       <div class="qr-col">
         <h4>During Import (TFS)</h4>
         <ul class="checklist">
-          <li>Correct TFS environment selected</li>
-          <li>All Connection References mapped</li>
-          <li>All Env Variable values entered</li>
-          <li>Import completed without errors</li>
+          <li>Correct environment selected</li>
+          <li>All Conn Refs mapped</li>
+          <li>All Env Variables set</li>
+          <li>Import completed OK</li>
         </ul>
       </div>
       <div class="qr-col">
         <h4>After Import (TFS)</h4>
         <ul class="checklist">
-          <li>Each flow turned on manually</li>
+          <li>Flow turned on manually</li>
           <li>Manual test run executed</li>
-          <li>Run History shows Succeeded</li>
-          <li>No connection errors</li>
+          <li>Run History Succeeded</li>
           <li>Machine online (if RPA)</li>
         </ul>
       </div>
@@ -648,8 +441,20 @@
     <p style="text-align:center;font-size:12px;font-weight:700;margin-top:14px;color:var(--purple);">DONE = clean run in TFS. Move first. Fix later.</p>
   </div>
 
-  <p style="font-size:11px;color:var(--subtext);text-align:center;margin-top:24px;">Migration Team Lead &nbsp;|&nbsp; CRG → TFS Migration Program &nbsp;|&nbsp; Power Platform &amp; RPA</p>
+  <p style="font-size:11px;color:var(--subtext);text-align:center;margin-top:24px;">Lead Architect: Manik Sharma &nbsp;|&nbsp; CRG → TFS Migration Program</p>
 
 </div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // Note the /tfs-migration/ prefix for GitHub Pages
+      navigator.serviceWorker.register('/tfs-migration/sw.js')
+        .then(reg => console.log('SOP Offline Mode Ready'))
+        .catch(err => console.log('Registration Failed', err));
+    });
+  }
+</script>
+
 </body>
 </html>
